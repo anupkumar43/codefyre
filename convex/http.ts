@@ -7,63 +7,7 @@ import Stripe from "stripe";
 
 const http = httpRouter();
 
-// 🟦 Stripe Webhook Route
-http.route({
-  path: "/stripe-webhook",
-  method: "POST",
-  handler: httpAction(async (ctx, request) => {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2025-05-28.basil",
-    });
-
-    const sig = request.headers.get("stripe-signature");
-    const body = await request.text();
-
-    if (!sig) {
-      return new Response("Missing Stripe signature", { status: 400 });
-    }
-
-    let event: Stripe.Event;
-    try {
-      event = stripe.webhooks.constructEvent(
-        body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET!
-      );
-    } catch (err) {
-      console.error("Stripe webhook error:", err);
-      return new Response("Invalid signature", { status: 400 });
-    }
-
-    // Handle subscription created/paid events
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object as Stripe.Checkout.Session;
-
-      const email = session.customer_details?.email;
-      const customerId = session.customer?.toString();
-      const subscriptionId = session.subscription?.toString();
-
-      if (!email || !customerId || !subscriptionId) {
-        return new Response("Missing session details", { status: 400 });
-      }
-
-      try {
-        await ctx.runMutation(api.users.upgradeToProStripe, {
-          email,
-          stripeCustomerId: customerId,
-          stripeSubscriptionId: subscriptionId,
-        });
-      } catch (error) {
-        console.error("Error upgrading user:", error);
-        return new Response("Error upgrading user", { status: 500 });
-      }
-    }
-
-    return new Response("Stripe webhook processed", { status: 200 });
-  }),
-});
-
-// 🟩 Clerk Webhook Route
+// Clerk Webhook Route
 http.route({
   path: "/clerk-webhook",
   method: "POST",
