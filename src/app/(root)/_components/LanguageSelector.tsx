@@ -13,7 +13,8 @@ function LanguageSelector({ hasAccess }: { hasAccess: boolean }) {
 
   const { language, setLanguage } = useCodeEditorRestore();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const currentLanguageObj = LANGUAGE_CONFIG[language];
+  const currentLanguageObj =
+    LANGUAGE_CONFIG[language] || LANGUAGE_CONFIG["javascript"];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -1,5 +1,4 @@
 "use client";
-
 import { useCodeEditorRestore } from "@/restore/useCodeEditorRestore";
 import React, { useEffect, useRef, useState } from "react";
 import { THEMES } from "../_constants";

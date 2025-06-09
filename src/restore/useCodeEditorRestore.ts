@@ -3,25 +3,40 @@ import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import { create } from "zustand";
 import { Monaco } from "@monaco-editor/react";
 
+const DEFAULT_LANGUAGE = "javascript";
+const DEFAULT_THEME = "vs-dark";
+const DEFAULT_FONT_SIZE = 16;
+
+const isValidLanguage = (
+  lang: string
+): lang is keyof typeof LANGUAGE_CONFIG => {
+  return lang in LANGUAGE_CONFIG;
+};
+
 const getInitialState = () => {
-  // if we're on the server, return default values
   if (typeof window === "undefined") {
     return {
-      language: "javascript",
-      fontSize: 16,
-      theme: "vs-dark",
+      language: DEFAULT_LANGUAGE,
+      fontSize: DEFAULT_FONT_SIZE,
+      theme: DEFAULT_THEME,
     };
   }
 
-  // if we're on the client, return values from local storage bc localStorage is a browser API.
-  const savedLanguage = localStorage.getItem("editor-language") || "javascript";
-  const savedTheme = localStorage.getItem("editor-theme") || "vs-dark";
-  const savedFontSize = localStorage.getItem("editor-font-size") || 16;
+  const storedLanguage =
+    localStorage.getItem("editor-language") || DEFAULT_LANGUAGE;
+  const language = isValidLanguage(storedLanguage)
+    ? storedLanguage
+    : DEFAULT_LANGUAGE;
+
+  const savedTheme = localStorage.getItem("editor-theme") || DEFAULT_THEME;
+  const savedFontSize = parseInt(
+    localStorage.getItem("editor-font-size") || `${DEFAULT_FONT_SIZE}`
+  );
 
   return {
-    language: savedLanguage,
+    language,
     theme: savedTheme,
-    fontSize: Number(savedFontSize),
+    fontSize: savedFontSize,
   };
 };
 
@@ -41,7 +56,6 @@ export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
     setEditor: (editor: Monaco) => {
       const savedCode = localStorage.getItem(`editor-code-${get().language}`);
       if (savedCode) editor.setValue(savedCode);
-
       set({ editor });
     },
 
@@ -56,7 +70,13 @@ export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
     },
 
     setLanguage: (language: string) => {
-      // Save current language code before switching
+      if (!isValidLanguage(language)) {
+        console.warn(
+          `Invalid language selected: ${language}. Falling back to default.`
+        );
+        language = DEFAULT_LANGUAGE;
+      }
+
       const currentCode = get().editor?.getValue();
       if (currentCode) {
         localStorage.setItem(`editor-code-${get().language}`, currentCode);
