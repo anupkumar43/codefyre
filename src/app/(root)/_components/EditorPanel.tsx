@@ -9,9 +9,11 @@ import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
 import { useClerk } from "@clerk/nextjs";
 import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
 import useMounted from "@/hooks/useMounted";
+import ShareSnippetDialog from "./ShareSnippetDialog";
 
 function EditorPanel() {
   const clerk = useClerk();
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const { language, theme, fontSize, editor, setFontSize, setEditor } =
     useCodeEditorRestore();
 
@@ -19,10 +21,7 @@ function EditorPanel() {
 
   useEffect(() => {
     const savedCode = localStorage.getItem(`editor-code-${language}`);
-    const currentLangConfig =
-      LANGUAGE_CONFIG[language] || LANGUAGE_CONFIG["javascript"];
-    const newCode = savedCode || currentLangConfig.defaultCode;
-
+    const newCode = savedCode || LANGUAGE_CONFIG[language].defaultCode;
     if (editor) editor.setValue(newCode);
   }, [language, editor]);
 
@@ -152,6 +151,9 @@ function EditorPanel() {
           {!clerk.loaded && <EditorPanelSkeleton />}
         </div>
       </div>
+      {isShareDialogOpen && (
+        <ShareSnippetDialog onClose={() => setIsShareDialogOpen(false)} />
+      )}
     </div>
   );
 }
