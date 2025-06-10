@@ -1,5 +1,3 @@
-import { Blocks } from "lucide-react";
-
 function Footer() {
   return (
     <footer className="relative bg-gray-950 border-t border-gray-800/50 mt-auto">

@@ -1,7 +1,7 @@
 import { CodeEditorState } from "./../types/index";
 import { LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import { create } from "zustand";
-import { Monaco } from "@monaco-editor/react";
+import type { editor as MonacoEditor } from "monaco-editor"; // Correct type import
 
 const DEFAULT_LANGUAGE = "javascript";
 const DEFAULT_THEME = "vs-dark";
@@ -40,7 +40,12 @@ const getInitialState = () => {
   };
 };
 
-export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
+export const useCodeEditorRestore = create<
+  CodeEditorState & {
+    editor: MonacoEditor.IStandaloneCodeEditor | null;
+    setEditor: (editor: MonacoEditor.IStandaloneCodeEditor) => void;
+  }
+>((set, get) => {
   const initialState = getInitialState();
 
   return {
@@ -53,7 +58,7 @@ export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
 
     getCode: () => get().editor?.getValue() || "",
 
-    setEditor: (editor: Monaco) => {
+    setEditor: (editor: MonacoEditor.IStandaloneCodeEditor) => {
       const savedCode = localStorage.getItem(`editor-code-${get().language}`);
       if (savedCode) editor.setValue(savedCode);
       set({ editor });
@@ -118,9 +123,6 @@ export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
 
         const data = await response.json();
 
-        console.log("data back from piston:", data);
-
-        // handle API-level erros
         if (data.message) {
           set({
             error: data.message,
@@ -129,7 +131,6 @@ export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
           return;
         }
 
-        // handle compilation errors
         if (data.compile && data.compile.code !== 0) {
           const error = data.compile.stderr || data.compile.output;
           set({
@@ -156,7 +157,7 @@ export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
           return;
         }
 
-        // if we get here, execution was successful
+        // Successful execution
         const output = data.run.output;
 
         set({
@@ -169,7 +170,7 @@ export const useCodeEditorRestore = create<CodeEditorState>((set, get) => {
           },
         });
       } catch (error) {
-        console.log("Error running code:", error);
+        console.error("Error running code:", error);
         set({
           error: "Error running code",
           executionResult: { code, output: "", error: "Error running code" },

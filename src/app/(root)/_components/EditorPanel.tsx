@@ -3,6 +3,7 @@ import { useCodeEditorRestore } from "@/restore/useCodeEditorRestore";
 import { useEffect, useState } from "react";
 import { defineMonacoThemes, LANGUAGE_CONFIG } from "../_constants";
 import { Editor } from "@monaco-editor/react";
+import type { editor as MonacoEditor } from "monaco-editor";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
@@ -14,8 +15,16 @@ import ShareSnippetDialog from "./ShareSnippetDialog";
 function EditorPanel() {
   const clerk = useClerk();
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  // Ensure correct typing for editor/setEditor
   const { language, theme, fontSize, editor, setFontSize, setEditor } =
-    useCodeEditorRestore();
+    useCodeEditorRestore() as {
+      language: string;
+      theme: string;
+      fontSize: number;
+      editor: MonacoEditor.IStandaloneCodeEditor | null;
+      setFontSize: (size: number) => void;
+      setEditor: (editor: MonacoEditor.IStandaloneCodeEditor) => void;
+    };
 
   const mounted = useMounted();
 
@@ -123,7 +132,7 @@ function EditorPanel() {
               onChange={handleEditorChange}
               theme={theme}
               beforeMount={defineMonacoThemes}
-              onMount={(editor) => setEditor(editor)}
+              onMount={(editor /*, monaco */) => setEditor(editor)}
               options={{
                 minimap: { enabled: false },
                 fontSize,
