@@ -3,13 +3,13 @@ import { v } from "convex/values";
 
 export default defineSchema({
   users: defineTable({
-    userId: v.string(),
+    userId: v.string(), // clerkId
     email: v.string(),
     name: v.string(),
     isPro: v.boolean(),
     proSince: v.optional(v.number()),
-    stripeCustomerId: v.optional(v.string()),
-    stripeSubscriptionId: v.optional(v.string()),
+    lemonSqueezyCustomerId: v.optional(v.string()),
+    lemonSqueezyOrderId: v.optional(v.string()),
   }).index("by_user_id", ["userId"]),
 
   codeExecutions: defineTable({
@@ -25,7 +25,7 @@ export default defineSchema({
     title: v.string(),
     language: v.string(),
     code: v.string(),
-    userName: v.string(),
+    userName: v.string(), // store user's name for easy access
   }).index("by_user_id", ["userId"]),
 
   snippetComments: defineTable({
