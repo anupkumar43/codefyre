@@ -99,6 +99,8 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
           <Image
             src={user.imageUrl}
             alt="Profile"
+            width={40}
+            height={40}
             className="w-24 h-24 rounded-full border-4 border-gray-800/50 relative z-10 group-hover:scale-105 transition-transform"
           />
           {userData.isPro && (
