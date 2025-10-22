@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/github/stars/anupkumar43/codefyre?style=social" alt="GitHub stars" />
   </a>
   <a href="https://codefyre.vercel.app/">
-    <img src="https://img.shields.io/badge/Live%20Demo-CodeFyre-blueviolet?logo=vercel" alt="Live Demo" />
+    <img src="https://img.shields.io/badge/Live%20Demo-Codefyre-blueviolet?logo=vercel" alt="Live Demo" />
   </a>
 </p>
 
